@@ -1,6 +1,7 @@
 #pragma once
 
-namespace Naukas³ówek {
+namespace Naukas³ówek 
+{
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -9,6 +10,7 @@ namespace Naukas³ówek {
 	using namespace System::Data;
 	using namespace System::Drawing;
 	using namespace System::IO;
+
 
 	/// <summary>
 	/// Podsumowanie informacji o MyForm
@@ -35,6 +37,7 @@ namespace Naukas³ówek {
 				delete components;
 			}
 		}
+
 	private: System::Windows::Forms::TabControl^ tc_words;
 	protected:
 
@@ -54,6 +57,7 @@ namespace Naukas³ówek {
 	private: System::Windows::Forms::Button^ bt_save;
 	private: System::Windows::Forms::Button^ bt_load;
 	private: System::Windows::Forms::SaveFileDialog^ saveFileDialog1;
+	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
 
 
 
@@ -63,7 +67,7 @@ namespace Naukas³ówek {
 		/// <summary>
 		/// Wymagana zmienna projektanta.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+		System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -86,6 +90,7 @@ namespace Naukas³ówek {
 			this->col_ger = (gcnew System::Windows::Forms::DataGridViewTextBoxColumn());
 			this->bt_save = (gcnew System::Windows::Forms::Button());
 			this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->tc_words->SuspendLayout();
 			this->tp_nauka->SuspendLayout();
 			this->tp_words->SuspendLayout();
@@ -218,6 +223,10 @@ namespace Naukas³ówek {
 			this->bt_save->UseVisualStyleBackColor = true;
 			this->bt_save->Click += gcnew System::EventHandler(this, &MyForm::bt_save_Click);
 			// 
+			// openFileDialog1
+			// 
+			this->openFileDialog1->FileName = L"openFileDialog1";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -232,29 +241,57 @@ namespace Naukas³ówek {
 			this->tp_words->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dgv_words))->EndInit();
 			this->ResumeLayout(false);
-
 		}
+
 #pragma endregion
+		private: array<String^>^ wordsline;
+		private: Random^ RandomRow;
+		private: Int32 ExcerseRow;
+		public: Int32 jezyk = 0;
 		void save()
 		{
-			saveFileDialog1->Filter =
-				"Pliki textowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*";
-			if (saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
-			{
-				StreamWriter^ f = gcnew StreamWriter(saveFileDialog1->FileName);
-				for (System::Int32 j = 0; j < dgv_words->RowCount - 1; j++)
-				{
-					f->WriteLine(dgv_words->Rows[j]->Cells[0]->Value->ToString());
-					f->WriteLine(dgv_words->Rows[j]->Cells[1]->Value->ToString());
-					f->WriteLine(dgv_words->Rows[j]->Cells[2]->Value->ToString());
-					f->WriteLine(dgv_words->Rows[j]->Cells[3]->Value->ToString());
-				}
-				f->Close();
-			}
+			   saveFileDialog1->Filter = "Pliki textowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*";
+			   if (saveFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			   {
+				   StreamWriter^ f = gcnew StreamWriter(saveFileDialog1->FileName);
+				   for (System::Int32 j = 0; j < dgv_words->RowCount - 1; j++)
+				   {
+					   f->WriteLine(dgv_words->Rows[j]->Cells[0]->Value->ToString());
+					   f->WriteLine(dgv_words->Rows[j]->Cells[1]->Value->ToString());
+					   f->WriteLine(dgv_words->Rows[j]->Cells[2]->Value->ToString());
+				   }
+				   f->Close();
+			   }
 		}
-private: System::Void bt_save_Click(System::Object^ sender, System::EventArgs^ e)
-{
-	save();
+private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
+	wordsline = gcnew array<String^>(4);
+	String^ OneWordRead;
+	// czytanie
+	openFileDialog1->Filter = "Pliki textowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*";
+	if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+	{
+		StreamReader^ f = gcnew StreamReader(openFileDialog1->FileName
+			, System::Text::Encoding::Default);
+		while (OneWordRead = f->ReadLine())
+		{
+			wordsline[0] = OneWordRead;
+			OneWordRead = f->ReadLine();
+			wordsline[1] = OneWordRead;
+			OneWordRead = f->ReadLine();
+			wordsline[2] = OneWordRead;
+			OneWordRead = f->ReadLine();
+			wordsline[3] = OneWordRead;
+			dgv_words->Rows->Add(wordsline);
+		}
+		f->Close();
+	}
+	RandomRow = gcnew Random();
+	ExercseRow = RandomRow->Next(dgv_words->RowCount - 1);
+	lab_word->Text = dgv_words->Rows[ExercseRow]->Cells[0]->Value->ToString();
 }
-};
+		private: System::Void bt_save_Click(System::Object^ sender, System::EventArgs^ e)
+		{
+		save();
+		}
+	};
 }
