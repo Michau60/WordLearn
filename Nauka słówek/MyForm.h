@@ -51,13 +51,16 @@ namespace Naukas³ówek
 	private: System::Windows::Forms::RadioButton^ rb_eng;
 	private: System::Windows::Forms::TextBox^ textBox1;
 	private: System::Windows::Forms::DataGridView^ dgv_words;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col_polish;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col_eng;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col_ger;
+
+
+
 	private: System::Windows::Forms::Button^ bt_save;
 	private: System::Windows::Forms::Button^ bt_load;
 	private: System::Windows::Forms::SaveFileDialog^ saveFileDialog1;
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col_polish;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col_eng;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ col_ger;
 
 
 
@@ -182,6 +185,7 @@ namespace Naukas³ówek
 			this->bt_load->TabIndex = 2;
 			this->bt_load->Text = L"Za³aduj";
 			this->bt_load->UseVisualStyleBackColor = true;
+			this->bt_load->Click += gcnew System::EventHandler(this, &MyForm::bt_load_Click);
 			// 
 			// dgv_words
 			// 
@@ -197,9 +201,10 @@ namespace Naukas³ówek
 			// 
 			// col_polish
 			// 
-			this->col_polish->AutoSizeMode = System::Windows::Forms::DataGridViewAutoSizeColumnMode::Fill;
+			this->col_polish->AutoSizeMode = System::Windows::Forms::DataGridViewAutoSizeColumnMode::AllCells;
 			this->col_polish->HeaderText = L"Polski";
 			this->col_polish->Name = L"col_polish";
+			this->col_polish->Width = 112;
 			// 
 			// col_eng
 			// 
@@ -241,6 +246,7 @@ namespace Naukas³ówek
 			this->tp_words->ResumeLayout(false);
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dgv_words))->EndInit();
 			this->ResumeLayout(false);
+
 		}
 
 #pragma endregion
@@ -263,35 +269,43 @@ namespace Naukas³ówek
 				   f->Close();
 			   }
 		}
-private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e) {
-	wordsline = gcnew array<String^>(4);
-	String^ OneWordRead;
-	// czytanie
-	openFileDialog1->Filter = "Pliki textowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*";
-	if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
-	{
-		StreamReader^ f = gcnew StreamReader(openFileDialog1->FileName
-			, System::Text::Encoding::Default);
-		while (OneWordRead = f->ReadLine())
+		void load()
 		{
-			wordsline[0] = OneWordRead;
-			OneWordRead = f->ReadLine();
-			wordsline[1] = OneWordRead;
-			OneWordRead = f->ReadLine();
-			wordsline[2] = OneWordRead;
-			OneWordRead = f->ReadLine();
-			wordsline[3] = OneWordRead;
-			dgv_words->Rows->Add(wordsline);
+			wordsline = gcnew array<String^>(4);
+			String^ OneWordRead;
+			// czytanie
+			openFileDialog1->Filter = "Pliki textowe (*.txt)|*.txt|Wszystkie pliki (*.*)|*.*";
+			if (openFileDialog1->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+			{
+				StreamReader^ f = gcnew StreamReader(openFileDialog1->FileName, System::Text::Encoding::Default);
+				while (OneWordRead = f->ReadLine())
+				{
+					wordsline[0] = OneWordRead;
+					OneWordRead = f->ReadLine();
+					wordsline[1] = OneWordRead;
+					OneWordRead = f->ReadLine();
+					wordsline[2] = OneWordRead;
+					OneWordRead = f->ReadLine();
+					wordsline[3] = OneWordRead;
+					dgv_words->Rows->Add(wordsline);
+				}
+				f->Close();
+			}
+			RandomRow = gcnew Random();
+			ExcerseRow = RandomRow->Next(dgv_words->RowCount - 1);
+			lab_word->Text = dgv_words->Rows[ExcerseRow]->Cells[0]->Value->ToString();
+			
+			RandomRow = gcnew Random();
+			ExcerseRow = RandomRow->Next(dgv_words->RowCount - 1);
+			lab_word->Text = dgv_words->Rows[ExcerseRow]->Cells[0]->Value->ToString();
 		}
-		f->Close();
-	}
-	RandomRow = gcnew Random();
-	ExercseRow = RandomRow->Next(dgv_words->RowCount - 1);
-	lab_word->Text = dgv_words->Rows[ExercseRow]->Cells[0]->Value->ToString();
-}
 		private: System::Void bt_save_Click(System::Object^ sender, System::EventArgs^ e)
 		{
 		save();
 		}
-	};
+	private: System::Void bt_load_Click(System::Object^ sender, System::EventArgs^ e) 
+	{
+		load();
+	}
+};
 }
